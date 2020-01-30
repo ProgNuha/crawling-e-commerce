@@ -58,7 +58,7 @@ class BerrybenkaCrawlerSpider(scrapy.Spider):
             # storing item
             items['product_name']=product_name
             items['product_price']=product_price
-            items['product_link_url']=product_link
+            items['product_url']=product_link
             items['product_image_url']=raw_product_image_link
             items['product_image']=product_name
             items['product_category']=product_category
