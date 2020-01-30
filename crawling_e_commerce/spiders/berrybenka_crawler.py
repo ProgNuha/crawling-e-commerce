@@ -3,6 +3,7 @@ import scrapy
 import csv
 import os
 
+from ..items import CrawlingECommerceItem
 
 class BerrybenkaCrawlerSpider(scrapy.Spider):
     name = 'berrybenka_crawler'
@@ -20,10 +21,13 @@ class BerrybenkaCrawlerSpider(scrapy.Spider):
                 yield scrapy.Request(url, callback = self.parse, meta = {"category_text": category_text})
 
     def parse(self, response):
-        """Function to process 8wood category results page"""
+        """Function to process clothes category results page"""
         product_category=response.meta["category_text"]
         products=response.xpath("//div[@class='catalog-list']")
         
+        # item containers for storing product
+        items = CrawlingECommerceItem()
+
         # iterating over search results
         for product in products:
             # Defining the XPaths
@@ -31,6 +35,8 @@ class BerrybenkaCrawlerSpider(scrapy.Spider):
             XPATH_PRODUCT_NAME=".//div[@class='catalog-detail']//div[@class='detail-left']//h1/text()"
             XPATH_PRODUCT_PRICE=".//div[@class='catalog-detail']//div[@class='detail-right']//p/text()"
             XPATH_PRODUCT_IMAGE_LINK=".//div[@class='catalog-image']//img/@src"
+
+            # print(product)
 
             raw_product_name=product.xpath(XPATH_PRODUCT_NAME).extract()
             raw_product_price=product.xpath(XPATH_PRODUCT_PRICE).extract()
@@ -47,11 +53,13 @@ class BerrybenkaCrawlerSpider(scrapy.Spider):
             product_link=''.join(raw_product_link).strip(
             ) if raw_product_link else None
 
-            yield {
-                'product_name': product_name,
-                'product_price': product_price,
-                'product_link': product_link,
-                'image_urls' : raw_product_image_link,
-                'images': product_name,
-                'category': product_category
-            }
+            # storing item
+            items['product_name']=product_name
+            items['product_price']=product_price
+            items['product_link_url']=product_link
+            items['product_image_url']=raw_product_image_link
+            items['product_image']=product_name
+            items['product_category']=product_category
+
+            yield items
+            
