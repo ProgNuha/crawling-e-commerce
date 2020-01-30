@@ -7,6 +7,8 @@ from ..items import CrawlingECommerceItem
 
 class BerrybenkaCrawlerSpider(scrapy.Spider):
     name = 'berrybenka_crawler'
+    number_product = 0
+    separator = 'n/'
     allowed_domains = ['berrybenka.com']
     start_urls = ['https://berrybenka.com']
 
@@ -16,7 +18,7 @@ class BerrybenkaCrawlerSpider(scrapy.Spider):
         with open(os.path.join(os.path.dirname(__file__), "../resources/categories.csv")) as categories:
             for category in csv.DictReader(categories):
                 category_text=category["category"]
-                url=str(BerrybenkaCrawlerSpider.start_urls[0])+"/clothing/"+category_text+"/women"
+                url=str(BerrybenkaCrawlerSpider.start_urls[0])+"/clothing/"+category_text+"/women/0"
                 # The meta is used to send our search text into the parser as metadata
                 yield scrapy.Request(url, callback = self.parse, meta = {"category_text": category_text})
 
@@ -27,7 +29,7 @@ class BerrybenkaCrawlerSpider(scrapy.Spider):
         
         # item containers for storing product
         items = CrawlingECommerceItem()
-
+        
         # iterating over search results
         for product in products:
             # Defining the XPaths
@@ -62,4 +64,18 @@ class BerrybenkaCrawlerSpider(scrapy.Spider):
             items['product_category']=product_category
 
             yield items
-            
+        
+        XPATH_PRAGINATION_LINK="//*[(@class='next right')]/a/@href"
+
+        next_page = response.xpath(XPATH_PRAGINATION_LINK).get()
+        current_url = str(response.request.url)
+        current_url = current_url.split(BerrybenkaCrawlerSpider.separator,1)
+        
+        if next_page is not None:
+            BerrybenkaCrawlerSpider.number_product += 48
+            next_url = current_url[0] + BerrybenkaCrawlerSpider.separator + str(BerrybenkaCrawlerSpider.number_product)
+            print('log: '+next_url)
+            yield response.follow(next_url, callback = self.parse, meta = {"category_text": product_category})
+        else: 
+            BerrybenkaCrawlerSpider.number_product = 0
+        
