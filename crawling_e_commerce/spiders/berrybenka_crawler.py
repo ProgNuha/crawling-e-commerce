@@ -23,7 +23,7 @@ class BerrybenkaCrawlerSpider(scrapy.Spider):
     def parse(self, response):
         """Function to process clothes category results page"""
         product_category=response.meta["category_text"]
-        products=response.xpath("//div[@class='catalog-list']")
+        products=response.xpath("//*[(@id='li-catalog')]")
         
         # item containers for storing product
         items = CrawlingECommerceItem()
@@ -38,10 +38,10 @@ class BerrybenkaCrawlerSpider(scrapy.Spider):
 
             # print(product)
 
-            raw_product_name=product.xpath(XPATH_PRODUCT_NAME).extract()
-            raw_product_price=product.xpath(XPATH_PRODUCT_PRICE).extract()
-            raw_product_image_link=product.xpath(XPATH_PRODUCT_IMAGE_LINK).extract()
-            raw_product_link=product.xpath(XPATH_PRODUCT_LINK).extract()
+            raw_product_name=product.xpath(XPATH_PRODUCT_NAME).get()
+            raw_product_price=product.xpath(XPATH_PRODUCT_PRICE).get()
+            raw_product_image_link=product.xpath(XPATH_PRODUCT_IMAGE_LINK).get()
+            raw_product_link=product.xpath(XPATH_PRODUCT_LINK).get()
             
             # cleaning the data
             product_name=''.join(raw_product_name).strip(
