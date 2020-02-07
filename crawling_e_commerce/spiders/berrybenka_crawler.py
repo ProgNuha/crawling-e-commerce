@@ -2,12 +2,12 @@
 import scrapy
 import csv
 import os
+import logging
 
 from ..items import CrawlingECommerceItem
 
 class BerrybenkaCrawlerSpider(scrapy.Spider):
     name = 'berrybenka_crawler'
-    number_product = 0
     separator = 'n/'
     allowed_domains = ['berrybenka.com']
     start_urls = ['https://berrybenka.com']
@@ -37,8 +37,6 @@ class BerrybenkaCrawlerSpider(scrapy.Spider):
             XPATH_PRODUCT_NAME=".//div[@class='catalog-detail']//div[@class='detail-left']//h1/text()"
             XPATH_PRODUCT_PRICE=".//div[@class='catalog-detail']//div[@class='detail-right']//p/text()"
             XPATH_PRODUCT_IMAGE_LINK=".//div[@class='catalog-image']//img/@src"
-
-            # print(product)
 
             raw_product_name=product.xpath(XPATH_PRODUCT_NAME).get()
             raw_product_price=product.xpath(XPATH_PRODUCT_PRICE).get()
@@ -70,12 +68,10 @@ class BerrybenkaCrawlerSpider(scrapy.Spider):
         next_page = response.xpath(XPATH_PRAGINATION_LINK).get()
         current_url = str(response.request.url)
         current_url = current_url.split(BerrybenkaCrawlerSpider.separator,1)
+        number_product = int(current_url[1])
         
         if next_page is not None:
-            BerrybenkaCrawlerSpider.number_product += 48
-            next_url = current_url[0] + BerrybenkaCrawlerSpider.separator + str(BerrybenkaCrawlerSpider.number_product)
-            print('log: '+next_url)
+            number_product += 48
+            next_url = current_url[0] + BerrybenkaCrawlerSpider.separator + str(number_product)
+            logging.info("current URL %s", next_url)
             yield response.follow(next_url, callback = self.parse, meta = {"category_text": product_category})
-        else: 
-            BerrybenkaCrawlerSpider.number_product = 0
-        
