@@ -63,3 +63,16 @@ class EightwoodspiderSpider(scrapy.Spider):
                 items['product_category']=product_category
 
                 yield items
+
+        #get pagination tag
+        XPATH_PAGINATION_LINK=".//ul[@class='pagination']//li[@class='next']//a/@href"
+        raw_pagination_link=response.xpath(XPATH_PAGINATION_LINK).extract()
+        pagination_link=''.join(raw_pagination_link).strip(
+        ) if raw_pagination_link else None
+
+        next_page = pagination_link
+        next_url = str(EightwoodspiderSpider.start_urls[0]) + next_page
+
+        #go to next page if it's available
+        if next_page is not None:
+            yield response.follow(next_url, callback = self.parse, meta = {"category_text": product_category})
