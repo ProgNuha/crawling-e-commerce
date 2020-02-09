@@ -22,6 +22,9 @@ class EightwoodspiderSpider(scrapy.Spider):
         product_category=response.meta["category_text"]
         products=response.xpath("//div[@class='p-list']")
         
+        # item containers for storing product
+        items = CrawlingECommerceItem()
+
         # iterating over search results
         for product in products:
             # get produck outstock tag
@@ -50,4 +53,13 @@ class EightwoodspiderSpider(scrapy.Spider):
                 ) if raw_product_image_link else None
                 product_link=str(EightwoodspiderSpider.start_urls[0])+''.join(raw_product_link).strip(
                 ) if raw_product_link else None
-                
+
+                # storing item
+                items['product_name']=product_name
+                items['product_price']=product_price
+                items['product_url']=product_link
+                items['image_url']=raw_product_image_link
+                items['image']=product_name
+                items['product_category']=product_category
+
+                yield items
