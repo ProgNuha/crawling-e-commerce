@@ -15,7 +15,7 @@ class BerrybenkaCrawlerSpider(scrapy.Spider):
     def start_requests(self):
         """Read category_text from categories file amd construct the URL"""
 
-        with open(os.path.join(os.path.dirname(__file__), "../resources/categories.csv")) as categories:
+        with open(os.path.join(os.path.dirname(__file__), "../resources/berrybenka_categories.csv")) as categories:
             for category in csv.DictReader(categories):
                 category_text=category["category"]
                 url=str(BerrybenkaCrawlerSpider.start_urls[0])+"/clothing/"+category_text+"/women/0"
