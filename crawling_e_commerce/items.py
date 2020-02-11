@@ -12,5 +12,5 @@ class CrawlingECommerceItem(scrapy.Item):
     product_price = scrapy.Field()
     product_url = scrapy.Field()
     product_category = scrapy.Field()
-    image_url = scrapy.Field()
-    image = scrapy.Field()
+    image_urls = scrapy.Field()
+    images = scrapy.Field()

@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 import scrapy
 import os
+import csv
+
+from ..items import CrawlingECommerceItem
 
 class EightwoodspiderSpider(scrapy.Spider):
     name = 'eightwoodSpider'
@@ -8,7 +11,7 @@ class EightwoodspiderSpider(scrapy.Spider):
     start_urls = ['http://www.8wood.id']
 
     def start_requests(self):
-         """Read category_text from eightwood_categories file and construct the URL"""
+        """Read category_text from eightwood_categories file and construct the URL"""
 
         with open(os.path.join(os.path.dirname(__file__), "../resources/eightwood_categories.csv")) as categories:
             for category in csv.DictReader(categories):
@@ -55,14 +58,13 @@ class EightwoodspiderSpider(scrapy.Spider):
                 ) if raw_product_link else None
 
                 # storing item
-                items['product_name']=product_name
-                items['product_price']=product_price
-                items['product_url']=product_link
-                items['image_url']=raw_product_image_link
-                items['image']=product_name
-                items['product_category']=product_category
-
-                yield items
+                yield CrawlingECommerceItem(
+                    product_name=product_name,
+                    product_price=product_price,
+                    product_url=product_link,
+                    image_urls=raw_product_image_link,
+                    product_category=product_category
+                )
 
         #get pagination tag
         XPATH_PAGINATION_LINK=".//ul[@class='pagination']//li[@class='next']//a/@href"
