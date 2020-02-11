@@ -15,7 +15,7 @@ class BerrybenkaCrawlerSpider(scrapy.Spider):
     def start_requests(self):
         """Read category_text from categories file amd construct the URL"""
 
-        with open(os.path.join(os.path.dirname(__file__), "../resources/categories.csv")) as categories:
+        with open(os.path.join(os.path.dirname(__file__), "../resources/berrybenka_categories.csv")) as categories:
             for category in csv.DictReader(categories):
                 category_text=category["category"]
                 url=str(BerrybenkaCrawlerSpider.start_urls[0])+"/clothing/"+category_text+"/women/0"
@@ -40,7 +40,7 @@ class BerrybenkaCrawlerSpider(scrapy.Spider):
 
             raw_product_name=product.xpath(XPATH_PRODUCT_NAME).get()
             raw_product_price=product.xpath(XPATH_PRODUCT_PRICE).get()
-            raw_product_image_link=product.xpath(XPATH_PRODUCT_IMAGE_LINK).get()
+            raw_product_image_link=product.xpath(XPATH_PRODUCT_IMAGE_LINK).extract()
             raw_product_link=product.xpath(XPATH_PRODUCT_LINK).get()
             
             # cleaning the data
@@ -54,14 +54,15 @@ class BerrybenkaCrawlerSpider(scrapy.Spider):
             ) if raw_product_link else None
 
             # storing item
-            items['product_name']=product_name
-            items['product_price']=product_price
-            items['product_url']=product_link
-            items['product_image_url']=raw_product_image_link
-            items['product_image']=product_name
-            items['product_category']=product_category
+            yield CrawlingECommerceItem (
+                product_name=product_name,
+                product_price=product_price,
+                product_url=product_link,
+                product_category=product_category,
+                image_urls=raw_product_image_link
+            )
 
-            yield items
+            # yield items
         
         XPATH_PRAGINATION_LINK="//*[(@class='next right')]/a/@href"
 
