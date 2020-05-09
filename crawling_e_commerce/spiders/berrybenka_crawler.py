@@ -25,6 +25,7 @@ class BerrybenkaCrawlerSpider(scrapy.Spider):
     def parse(self, response):
         """Function to process clothes category results page"""
         product_category=response.meta["category_text"]
+        product_category=BerrybenkaCrawlerSpider.select_category(self,product_category)
         products=response.xpath("//*[(@id='li-catalog')]")
         
         # item containers for storing product
@@ -76,3 +77,37 @@ class BerrybenkaCrawlerSpider(scrapy.Spider):
             next_url = current_url[0] + BerrybenkaCrawlerSpider.separator + str(number_product)
             logging.info("current URL %s", next_url)
             yield response.follow(next_url, callback = self.parse, meta = {"category_text": product_category})
+
+    def select_category_top(self):
+        return "top"
+
+    def select_category_long(self):
+        return "long"
+    
+    def select_category_bottom(self):
+        return "bottom"
+
+    def select_category(self, categories):
+        category = {
+            'cullotes': BerrybenkaCrawlerSpider.select_category_bottom(self),
+            'long-pants': BerrybenkaCrawlerSpider.select_category_bottom(self),
+            'short-pants': BerrybenkaCrawlerSpider.select_category_bottom(self),
+            'jeans': BerrybenkaCrawlerSpider.select_category_bottom(self),
+            'leggings': BerrybenkaCrawlerSpider.select_category_bottom(self),
+            'skirts': BerrybenkaCrawlerSpider.select_category_bottom(self),
+            'maxi-dresses': BerrybenkaCrawlerSpider.select_category_long(self),
+            'midi-dresses': BerrybenkaCrawlerSpider.select_category_long(self),
+            'mini-dresses': BerrybenkaCrawlerSpider.select_category_long(self),
+            'jumpsuit': BerrybenkaCrawlerSpider.select_category_long(self),
+            'casual': BerrybenkaCrawlerSpider.select_category_long(self),
+            'bodycon-dress': BerrybenkaCrawlerSpider.select_category_long(self),
+            'vest': BerrybenkaCrawlerSpider.select_category_top(self),
+            'cardigans': BerrybenkaCrawlerSpider.select_category_top(self),
+            'tank-top': BerrybenkaCrawlerSpider.select_category_top(self),
+            'women-tees': BerrybenkaCrawlerSpider.select_category_top(self),
+            'women-tshirt': BerrybenkaCrawlerSpider.select_category_top(self),
+            'blouse': BerrybenkaCrawlerSpider.select_category_top(self),
+            
+        }
+        
+        return category.get(categories,"category")
