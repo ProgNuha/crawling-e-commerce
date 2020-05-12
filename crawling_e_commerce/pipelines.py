@@ -23,13 +23,14 @@ class CrawlingECommercePipeline(object):
         self.curr=self.conn.cursor()
 
     def crete_table(self):
-        self.curr.execute("""DROP TABLE IF EXISTS tbm_products_ecommerce""")
-        self.curr.execute("""CREATE TABLE tbm_products_ecommerce(
+        self.curr.execute("""DROP TABLE IF EXISTS tbm_products""")
+        self.curr.execute("""CREATE TABLE tbm_products(
                             product_name text,
                             product_price text,
                             product_category text,
                             product_url text,
-                            image_url text
+                            image_url text,
+                            images text
                         )""")
 
     def process_item(self, item, spider):
@@ -37,11 +38,12 @@ class CrawlingECommercePipeline(object):
         return item
 
     def store_db(self,item):
-        self.curr.execute("""INSERT INTO tbm_products_ecommerce values (%s,%s,%s,%s,%s)""", (
+        self.curr.execute("""INSERT INTO tbm_products values (%s,%s,%s,%s,%s,%s)""", (
             item['product_name'],
             item['product_price'],
             item['product_category'],
             item['product_url'],
-            item['image_urls'][0]
+            item['image_urls'][0],
+            item['images']
         ))
         self.conn.commit()
